@@ -1,1 +1,8 @@
 # CrashTest
+
+
+一般来说，无论你的程序多么完美，也没法完全避免crash的发生
+
+当crash发生时，系统会调用UncaughtExceptionHandler的uncaughtException方法，在这个方法中我们就可以操作了，把crash信息输出到sdcard中，再将 .trace发送到服务器端给我们的开发人员通过log信息以便在之后的版本改进
+
+我们要做的就是自定义一个类实现UncaughtExceptionHandler这个接口，并在uncaughtException方法中操作
