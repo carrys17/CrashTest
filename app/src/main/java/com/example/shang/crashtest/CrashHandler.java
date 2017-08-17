@@ -5,6 +5,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Process;
 import android.util.Log;
 
 import java.io.BufferedWriter;
@@ -30,12 +31,16 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
 
     private Context mContext;
 
+    private CrashHandler(){}
+
+    private Thread.UncaughtExceptionHandler mDefaultCrashHandler;
 
     static CrashHandler getInstance(){
         return sInstance;
     }
 
     void init(Context context){
+        mDefaultCrashHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(this);
         mContext = context.getApplicationContext();
     }
@@ -50,6 +55,13 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
             uploadExceptionToServer();
         }catch (IOException e1){
             e1.printStackTrace();
+        }
+        e.printStackTrace();
+        // 如果系统提供了默认的异常处理器，则交给系统去结束程序，否则就由自己结束自己
+        if (mDefaultCrashHandler!=null){
+            mDefaultCrashHandler.uncaughtException(t,e);
+        }else {
+            Process.killProcess(Process.myPid());
         }
 
     }
